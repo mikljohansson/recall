@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <PreferenceCategory 
+        android:title="@string/pref_phonecall_category">
+	    
+	    <CheckBoxPreference 
+	    	android:key="phonecall-record-all"
+	    	android:title="@string/pref_phonecall_record_all_title"
+	    	android:summary="@string/pref_phonecall_record_all_summary"
+	    	android:defaultValue="true"/>
+	
+	    <CheckBoxPreference 
+	    	android:key="phonecall-record-unknown"
+	    	android:title="@string/pref_phonecall_record_unknown_title"
+	    	android:summary="@string/pref_phonecall_record_unknown_summary"
+	    	android:defaultValue="true"/>
+	   
+	    <CheckBoxPreference 
+	    	android:key="phonecall-record-private"
+	    	android:title="@string/pref_phonecall_record_private_title"
+	    	android:summary="@string/pref_phonecall_record_private_summary"
+	    	android:defaultValue="true"/>
+	</PreferenceCategory>
+    
+    <PreferenceCategory 
+        android:title="@string/pref_trigger_category">
+	    <CheckBoxPreference 
+	    	android:key="phonecall-record-gesture"
+	    	android:title="@string/pref_trigger_gesture_title"
+	    	android:summary="@string/pref_trigger_gesture_summary"
+	    	android:defaultValue="true"/>
+    </PreferenceCategory>
+    
+    <PreferenceCategory 
+        android:title="@string/pref_notification_category">
+	    <CheckBoxPreference 
+	    	android:key="notification-recorded"
+	    	android:title="@string/pref_notification_recorded_title"
+	    	android:summary="@string/pref_notification_recorded_summary"
+	    	android:defaultValue="true"/>
+    </PreferenceCategory>
+</PreferenceScreen>

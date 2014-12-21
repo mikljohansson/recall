@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Recall</string>
+    
+    <string name="menu_option_delete">Delete</string>
+    <string name="menu_option_settings">Settings</string>
+    
+    <string name="phonecalls_fragment_name">Phone calls</string>
+	<string name="settings_activity_name">Settings</string>
+	
+	<string name="phonecall_private_number">Private number</string>
+	<string name="phonecall_allowed_through">Allowed through on third retry</string>
+	<string name="phonecall_default_date">0 minutes ago</string>
+	<string name="phonecall_content_description">Phonecall</string>
+    
+    <string name="pref_phonecall_category">Automatic recording</string>
+    <string name="pref_phonecall_record_all_title">Always record</string>
+    <string name="pref_phonecall_record_all_summary">Automatically record all incoming and outgoing calls</string>
+    <string name="pref_phonecall_record_unknown_title">Unknown contact</string>
+    <string name="pref_phonecall_record_unknown_summary">Automatically record calls from numbers not listed in contacts</string>
+    <string name="pref_phonecall_record_private_title">Private numbers</string>
+    <string name="pref_phonecall_record_private_summary">Automatically record calls from private numbers and hidden callers</string>
+    
+    <string name="pref_trigger_category">Gestures</string>
+    <string name="pref_trigger_gesture_title">Shake to record</string>
+    <string name="pref_trigger_gesture_summary">Shake phone to start or stop recording while ringing or during any call</string>
+    
+    <string name="pref_notification_category">Notifications</string>
+    <string name="pref_notification_recorded_title">Recorded call</string>
+    <string name="pref_notification_recorded_summary">Show notification with details after call has been recorded</string>
+    
+    <string name="msg_blocked_call">Blocked call</string>
+    <string name="msg_blocked_incoming_call">Blocked incoming call from private number</string>
+    <string name="msg_list_is_empty">There are no recorded phone calls yet.</string>
+    
+    <string name="msg_recording_phonecall">Recording phone call</string>
+    <string name="msg_recorded_phonecall">Recorded phone call</string>
+    <string name="msg_recorded_phonecall_from">Recorded phone call from %s</string>
+    
+</resources>
