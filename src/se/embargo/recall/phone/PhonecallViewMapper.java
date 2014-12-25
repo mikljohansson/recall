@@ -16,7 +16,7 @@ import android.widget.TextView;
 public class PhonecallViewMapper implements IViewMapper<ContentValues> {
     public static final int ID_TAG = R.id.itemThumbnail;
     public static final int URI_TAG = R.id.itemTitle;
-    public static final int TYPE_TAG = R.id.itemModified;
+    public static final int MIMETYPE_TAG = R.id.itemModified;
 
     private final Contacts _contacts;
     
@@ -26,7 +26,6 @@ public class PhonecallViewMapper implements IViewMapper<ContentValues> {
     
     @Override
 	public View convert(ContentValues item, View view, ViewGroup parent) {
-    	int type = getItemViewType(item);		
     	if (view == null) {
 			LayoutInflater inflater = (LayoutInflater)parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			view = inflater.inflate(R.layout.phonecall_listitem, parent, false);
@@ -50,7 +49,7 @@ public class PhonecallViewMapper implements IViewMapper<ContentValues> {
 			descriptionview.setText(phonenumber);
 			descriptionview.setVisibility(View.VISIBLE);
 		}
-		else if (phonenumber != null) {
+		else if (phonenumber != null && !"".equals(phonenumber)) {
 			titleview.setText(phonenumber);
 			descriptionview.setVisibility(View.INVISIBLE);
 		}
@@ -64,7 +63,8 @@ public class PhonecallViewMapper implements IViewMapper<ContentValues> {
 		modifiedview.setText(Dates.formatRelativeTimeSpan(item.getAsLong(Phonecall.MODIFIED)));
 		
 		view.setTag(ID_TAG, item.getAsString(Phonecall.ID));
-		view.setTag(TYPE_TAG, type);
+		view.setTag(URI_TAG, item.getAsString(Phonecall.URI));
+		view.setTag(MIMETYPE_TAG, item.getAsString(Phonecall.MIMETYPE));
 		return view;
 	}
 	

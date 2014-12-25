@@ -16,7 +16,7 @@ public class RecallDatabase extends SQLiteOpenHelper {
 	private static int DB_SCHEMA_VERSION = 1;
 	
 	public RecallDatabase(Context context) {
-		super(context, "job", null, DB_SCHEMA_VERSION);
+		super(context, "recall", null, DB_SCHEMA_VERSION);
 	}
 	
 	@Override
@@ -59,8 +59,11 @@ public class RecallDatabase extends SQLiteOpenHelper {
 		new String[] {
 			"CREATE TABLE phonecall (" +
 				"_id TEXT PRIMARY KEY, " +
-				"phonenumber TEXT NOT NULL, " +
-				"action INTEGER NOT NULL DEFAULT 0, " +
+				"phonenumber TEXT, " +
+				"uri TEXT NOT NULL, " +
+				"mimetype TEXT NOT NULL, " +
+				"direction INTEGER NOT NULL, " +
+				"duration INTEGER NOT NULL, " +
 				"modified INTEGER NOT NULL)",
 
 			"CREATE INDEX phonecall_modified_idx ON phonecall (modified DESC)",

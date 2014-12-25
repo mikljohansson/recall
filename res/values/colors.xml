@@ -6,4 +6,5 @@
     <color name="field_layout_background">#ffffffff</color>
     
     <color name="textColorSecondary">#ff999999</color>
+    <color name="errorBackground">#ffff9999</color>
 </resources>

@@ -3,8 +3,26 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical">
+    <LinearLayout 
+		android:id="@+id/recordingUnsupportedLayout"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+	    android:orientation="vertical"
+	    style="@style/Widget.Error.Layout">
+	    <TextView 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/phonecall_recording_unsupported"
+			style="@style/Widget.Error.Title"/>
+	    <TextView 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/phonecall_recording_use_mic"
+			style="@style/Widget.Error.Description"/>
+	</LinearLayout>    
 	<FrameLayout 
         android:id="@+id/fragment"
+		android:layout_below="@id/recordingUnsupportedLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 </RelativeLayout>

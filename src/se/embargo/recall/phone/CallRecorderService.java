@@ -15,7 +15,6 @@ import se.embargo.recall.SettingsActivity;
 import se.embargo.recall.database.Phonecall;
 import se.embargo.recall.database.RecallRepository;
 import android.annotation.SuppressLint;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
@@ -35,11 +34,11 @@ import android.util.Log;
 public class CallRecorderService extends AbstractService {
 	private static final String TAG = "CallRecorderService";
 	
-	private static final String DIRECTORY = "Recollect/%s";
+	private static final String DIRECTORY = "Recall/%s";
 	private static final String FILENAME_PATTERN = "%s-%s-%d.mp4";
 	
-	public static final String EXTRA_EVENT = "se.embargo.oddjob.phone.CallRecorderService.event";
-	public static final String EXTRA_PHONE_NUMBER = "se.embargo.oddjob.phone.CallRecorderService.phonenumber";
+	public static final String EXTRA_EVENT = "se.embargo.recall.phone.CallRecorderService.event";
+	public static final String EXTRA_PHONE_NUMBER = "se.embargo.recall.phone.CallRecorderService.phonenumber";
 	
 	public static final String EXTRA_STATE_OUTGOING = "outgoing";
 	public static final String EXTRA_STATE_RINGING = "ringing";
@@ -53,6 +52,8 @@ public class CallRecorderService extends AbstractService {
 	
 	private GestureDetector _gesture = null;
 	private String _phonenumber = null;
+	private Phonecall.Direction _direction = Phonecall.Direction.INCOMING;
+	private long _recordingStartTime = 0;
 	
 	private MediaRecorder _recorder = null;
 	private String _filename = null;
@@ -72,26 +73,23 @@ public class CallRecorderService extends AbstractService {
 			String event = intent.getStringExtra(EXTRA_EVENT);
 			if (EXTRA_STATE_OUTGOING.equals(event) || EXTRA_STATE_RINGING.equals(event)) {
 				_phonenumber = intent.getStringExtra(EXTRA_PHONE_NUMBER);
+				_direction = EXTRA_STATE_OUTGOING.equals(event) ? Phonecall.Direction.OUTGOING : Phonecall.Direction.INCOMING;
 	
-				if (_phonenumber != null) {
-					// Start gesture detection before call has been answered
-					if (_gesture == null && _prefs.getBoolean(SettingsActivity.PREF_PHONECALL_RECORD_GESTURE, SettingsActivity.PREF_PHONECALL_RECORD_GESTURE_DEFAULT)) {
-						_gesture = new GestureDetector();
-					}
+				// Start gesture detection before call has been answered
+				if (_gesture == null && _prefs.getBoolean(SettingsActivity.PREF_PHONECALL_RECORD_GESTURE, SettingsActivity.PREF_PHONECALL_RECORD_GESTURE_DEFAULT)) {
+					_gesture = new GestureDetector();
 				}
 			}
 			else if (EXTRA_STATE_OFFHOOK.equals(event)) {
-				if (_phonenumber != null) {
-					Log.i(TAG, "Call went through to: " + _phonenumber);
-					_incall = true;
-		
-					// Start recording if shaken or if phonenumber match the rules
-					if (_prepared || isRecordedNumber(_phonenumber)) {
-						startRecording();
-					}
-					else {
-						Log.i(TAG, "Ignoring phonecall with: " + _phonenumber);
-					}
+				Log.i(TAG, "Call went through to: " + _phonenumber);
+				_incall = true;
+	
+				// Start recording if shaken or if phonenumber match the rules
+				if (_prepared || isRecordedNumber(_phonenumber)) {
+					startRecording();
+				}
+				else {
+					Log.i(TAG, "Ignoring phonecall with: " + _phonenumber);
 				}
 			}
 			else if (EXTRA_STATE_IDLE.equals(event)) {
@@ -107,19 +105,55 @@ public class CallRecorderService extends AbstractService {
 				_phonenumber = null;
 				_incall = false;
 			}
+			else if (EXTRA_STATE_BOOT.equals(event)) {
+				// Test if VOICE_CALL is supported
+				testRecording();
+			}
 		}
 		
 		return result;
 	}
 	
-	@SuppressWarnings("deprecation")
+	private void testRecording() {
+		File file = null;
+		try {
+			Log.i(TAG, "Test recording from MediaRecorder.AudioSource.VOICE_CALL");
+			file = File.createTempFile("recall", ".mp4");
+			MediaRecorder recorder = new MediaRecorder();
+			recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_CALL);
+			recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+			recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+			recorder.setOutputFile(file.toString());
+			recorder.prepare();
+			recorder.start();
+			recorder.stop();
+			recorder.reset();
+			recorder.release();
+			_prefs.edit().putBoolean(SettingsActivity.PREF_RECORDING_SUPPORTED, true).commit();
+			Log.i(TAG, "Voice call recording is supported");
+		}
+		catch (Exception e) {
+			Log.e(TAG, "Voice call recording unsupported", e);
+			_prefs.edit().putBoolean(SettingsActivity.PREF_RECORDING_SUPPORTED, false).commit();
+		}
+		finally {
+			if (file != null) {
+				file.delete();
+			}
+		}
+	}
+	
 	private void startRecording() {
 		boolean first = (_recorder == null);
 		
 		if (first) {
 	        try {
-				_recorder = new MediaRecorder();
-		        _recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_CALL);
+	        	int source = _prefs.getBoolean(SettingsActivity.PREF_RECORDING_SUPPORTED,  true) ? 
+	        		MediaRecorder.AudioSource.VOICE_CALL : MediaRecorder.AudioSource.MIC;
+	        	Log.i(TAG, "Using audio source: " + source);
+	        	
+	        	_recorder = new MediaRecorder();
+		        _recorder.setAudioSource(source);
 		    	_recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 		    	_recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 				_filename = createOutputFile().getAbsolutePath();
@@ -155,24 +189,27 @@ public class CallRecorderService extends AbstractService {
 				return;
         	}
         }
+
+        _recordingStartTime = System.currentTimeMillis();
         
         if (first) {
 			// Display a notification about us starting and put a persistent icon in the status bar
-			Notification statusMessage = new Notification(
-				R.drawable.ic_launcher, getText(R.string.msg_recording_phonecall), System.currentTimeMillis());
-	
-			// The PendingIntent to launch our activity if the user selects this notification
-			PendingIntent contentIntent = PendingIntent.getActivity(
-					this, 0, new Intent(this, MainActivity.class), 0);
-			statusMessage.setLatestEventInfo(this, 
-				getText(R.string.msg_recording_phonecall), 
-				getText(R.string.msg_recording_phonecall), contentIntent);
+			PendingIntent contentIntent = TaskStackBuilder.create(this).
+				addParentStack(MainActivity.class).
+				addNextIntent(new Intent(this, MainActivity.class)).
+				getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+			NotificationCompat.Builder builder = new NotificationCompat.Builder(this).
+				setSmallIcon(R.drawable.ic_notification_mic).
+				setContentTitle(getString(R.string.msg_recording_phonecall)).
+				setContentIntent(contentIntent);
 			
-			startForeground(R.string.msg_recording_phonecall, statusMessage);
+			startForeground(R.string.msg_recording_phonecall, builder.build());
         }
 	}
 	
 	private void stopRecording() {
+		boolean recorded = false;
 		if (_recorder != null) {
 			// Finalize audio recording
 			try {
@@ -182,15 +219,18 @@ public class CallRecorderService extends AbstractService {
 
 				// Insert into database
 				Uri uri = Uri.parse("file://" + _filename);
-				ContentValues phonecall = Phonecall.create(_phonenumber, "audio/mp4", uri);
+				ContentValues phonecall = Phonecall.create(
+					_phonenumber, "audio/mp4", uri, 
+					_direction, System.currentTimeMillis() - _recordingStartTime);
 	        	getContentResolver().insert(RecallRepository.PHONECALL_URI, phonecall);
-
+	        	
 				Log.i(TAG, "Finished recording phonecall with " + _phonenumber);
+	        	recorded = true;
 			}
 			catch (RuntimeException e) {
 				// Cleanup file if recorder throws
 				new File(_filename).delete();
-				Log.w(TAG, "Failed to record phonecall with " + _phonenumber, e);
+				Log.e(TAG, "Failed to record phonecall with " + _phonenumber, e);
 			}
 			finally {
 				_recorder = null;
@@ -204,16 +244,17 @@ public class CallRecorderService extends AbstractService {
 		stopService();
 		
 		// Show notification with link to recording
-		if (_prefs.getBoolean(SettingsActivity.PREF_NOTIFICATION_RECORDED, SettingsActivity.PREF_NOTIFICATION_RECORDED_DEFAULT)) {
+		if (recorded && _prefs.getBoolean(SettingsActivity.PREF_NOTIFICATION_RECORDED, SettingsActivity.PREF_NOTIFICATION_RECORDED_DEFAULT)) {
 			PendingIntent contentIntent = TaskStackBuilder.create(this).
 				addParentStack(MainActivity.class).
 				addNextIntent(new Intent(this, MainActivity.class)).
 				getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 			
 			NotificationCompat.Builder builder = new NotificationCompat.Builder(this).
-				setSmallIcon(R.drawable.ic_notification_phone_missed).
+				setSmallIcon(R.drawable.ic_notification_mic).
 				setContentTitle(getString(R.string.msg_recorded_phonecall)).
-				setContentIntent(contentIntent);
+				setContentIntent(contentIntent).
+				setAutoCancel(true);
 
 			ContactDetails contact = new Contacts(this).getPhonecallDetails(_phonenumber);
 			if (contact != null) {
@@ -224,7 +265,7 @@ public class CallRecorderService extends AbstractService {
 				builder.setContentText(getString(R.string.msg_recorded_phonecall_from, _phonenumber));
 			}
 			else {
-				builder.setContentText(getString(R.string.phonecall_private_number));
+				builder.setContentText(getString(R.string.msg_recorded_phonecall_from_private_number));
 			}
 			
 			NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
@@ -273,24 +314,28 @@ public class CallRecorderService extends AbstractService {
 		}
 		
 		if (_prefs.getBoolean(SettingsActivity.PREF_PHONECALL_RECORD_UNKNOWN, SettingsActivity.PREF_PHONECALL_RECORD_UNKNOWN_DEFAULT) && 
-			(phonenumber != null && !"".equals(phonenumber)) && !isContact(phonenumber)) {
+			!isPrivateNumber(phonenumber) && !isContact(phonenumber)) {
 			return true;
 		}
 		
 		if (_prefs.getBoolean(SettingsActivity.PREF_PHONECALL_RECORD_PRIVATE, SettingsActivity.PREF_PHONECALL_RECORD_PRIVATE_DEFAULT) && 
-			(phonenumber == null || "".equals(phonenumber))) {
+			isPrivateNumber(phonenumber)) {
 			return true;
 		}
 
 		return false;
 	}
+
+	private boolean isPrivateNumber(String phonenumber) {
+		return phonenumber == null || "".equals(phonenumber);
+	}
 	
-	private boolean isContact(String number) {
-		if (number == null) {
+	private boolean isContact(String phonenumber) {
+		if (phonenumber == null) {
 			return false;
 		}
 		
-	    Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
+	    Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phonenumber));
 	    Cursor cursor = getContentResolver().query(uri, new String[] {BaseColumns._ID}, null, null, null);
 
 	    try {

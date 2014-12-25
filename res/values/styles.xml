@@ -49,4 +49,15 @@
       <item name="android:textColor">@color/textColorSecondary</item>
       <item name="android:textSize">13sp</item>
 	</style>
+	
+	<style name="Widget.Error.Layout" parent="@android:style/TextAppearance.Medium">
+      <item name="android:background">@color/errorBackground</item>
+      <item name="android:padding">10dp</item>
+	</style>
+	<style name="Widget.Error.Title" parent="@android:style/TextAppearance.Medium">
+	</style>
+	<style name="Widget.Error.Description" parent="@android:style/TextAppearance.Small">
+      <item name="android:background">@color/errorBackground</item>
+      <item name="android:layout_marginTop">10dp</item>
+	</style>
 </resources>
