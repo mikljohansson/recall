@@ -3,6 +3,7 @@ package se.embargo.recall.phone;
 import se.embargo.core.Contacts;
 import se.embargo.core.Dates;
 import se.embargo.core.databinding.IViewMapper;
+import se.embargo.recall.Phonenumbers;
 import se.embargo.recall.R;
 import se.embargo.recall.database.Phonecall;
 import android.content.ContentValues;
@@ -49,12 +50,12 @@ public class PhonecallViewMapper implements IViewMapper<ContentValues> {
 			descriptionview.setText(phonenumber);
 			descriptionview.setVisibility(View.VISIBLE);
 		}
-		else if (phonenumber != null && !"".equals(phonenumber)) {
-			titleview.setText(phonenumber);
+		else if (Phonenumbers.isPrivateNumber(phonenumber)) {
+			titleview.setText(R.string.phonecall_private_number);
 			descriptionview.setVisibility(View.INVISIBLE);
 		}
 		else {
-			titleview.setText(R.string.phonecall_private_number);
+			titleview.setText(phonenumber);
 			descriptionview.setVisibility(View.INVISIBLE);
 		}
 

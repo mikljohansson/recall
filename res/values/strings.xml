@@ -4,6 +4,8 @@
     
     <string name="menu_option_delete">Delete</string>
     <string name="menu_option_settings">Settings</string>
+    <string name="menu_option_share">Share</string>
+    <string name="menu_option_send">Send</string>
     
     <string name="phonecalls_fragment_name">Phone calls</string>
 	<string name="settings_activity_name">Settings</string>
@@ -35,6 +37,7 @@
     <string name="msg_blocked_call">Blocked call</string>
     <string name="msg_blocked_incoming_call">Blocked incoming call from private number</string>
     <string name="msg_list_is_empty">There are no recorded phone calls yet.</string>
+    <string name="msg_action_send">Send using</string>
     
     <string name="msg_recording_phonecall">Recording call</string>
     <string name="msg_recorded_phonecall">Recorded call</string>

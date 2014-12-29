@@ -10,6 +10,7 @@ import se.embargo.core.Contacts.ContactDetails;
 import se.embargo.core.gesture.ShakeGestureDetector;
 import se.embargo.core.service.AbstractService;
 import se.embargo.recall.MainActivity;
+import se.embargo.recall.Phonenumbers;
 import se.embargo.recall.R;
 import se.embargo.recall.SettingsActivity;
 import se.embargo.recall.database.Phonecall;
@@ -24,6 +25,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
@@ -31,7 +33,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
-public class CallRecorderService extends AbstractService {
+public class CallService extends AbstractService {
 	private static final String TAG = "CallRecorderService";
 	
 	private static final String DIRECTORY = "Recall/%s";
@@ -58,6 +60,8 @@ public class CallRecorderService extends AbstractService {
 	private MediaRecorder _recorder = null;
 	private String _filename = null;
 	private boolean _incall = false, _prepared = false;
+	
+	private TestRecordingTask _task = null;
 	
 	@Override
 	public void onCreate() {
@@ -107,39 +111,57 @@ public class CallRecorderService extends AbstractService {
 			}
 			else if (EXTRA_STATE_BOOT.equals(event)) {
 				// Test if VOICE_CALL is supported
-				testRecording();
+				if (_task == null) {
+					_task = new TestRecordingTask();
+					_task.execute();
+				}
 			}
 		}
 		
 		return result;
 	}
 	
-	private void testRecording() {
-		File file = null;
-		try {
-			Log.i(TAG, "Test recording from MediaRecorder.AudioSource.VOICE_CALL");
-			file = File.createTempFile("recall", ".mp4");
-			MediaRecorder recorder = new MediaRecorder();
-			recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_CALL);
-			recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-			recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-			recorder.setOutputFile(file.toString());
-			recorder.prepare();
-			recorder.start();
-			recorder.stop();
-			recorder.reset();
-			recorder.release();
-			_prefs.edit().putBoolean(SettingsActivity.PREF_RECORDING_SUPPORTED, true).commit();
-			Log.i(TAG, "Voice call recording is supported");
-		}
-		catch (Exception e) {
-			Log.e(TAG, "Voice call recording unsupported", e);
-			_prefs.edit().putBoolean(SettingsActivity.PREF_RECORDING_SUPPORTED, false).commit();
-		}
-		finally {
-			if (file != null) {
-				file.delete();
+	private class TestRecordingTask extends AsyncTask<Void, Void, Void> {
+		@Override
+		protected Void doInBackground(Void... params) {
+			File file = null;
+			try {
+				Log.i(TAG, "Test recording from MediaRecorder.AudioSource.VOICE_CALL");
+				file = File.createTempFile("recall", ".mp4");
+				MediaRecorder recorder = new MediaRecorder();
+				recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_CALL);
+				recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+				recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+				recorder.setOutputFile(file.toString());
+				recorder.prepare();
+				recorder.start();
+				recorder.stop();
+				recorder.reset();
+				recorder.release();
+				_prefs.edit().putBoolean(SettingsActivity.PREF_RECORDING_SUPPORTED, true).commit();
+				Log.i(TAG, "Voice call recording is supported");
 			}
+			catch (Exception e) {
+				Log.e(TAG, "Voice call recording unsupported", e);
+				_prefs.edit().putBoolean(SettingsActivity.PREF_RECORDING_SUPPORTED, false).commit();
+			}
+			finally {
+				if (file != null) {
+					file.delete();
+				}
+			}
+			
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			_task = null;
+		}
+		
+		@Override
+		protected void onCancelled(Void result) {
+			_task = null;
 		}
 	}
 	
@@ -148,7 +170,7 @@ public class CallRecorderService extends AbstractService {
 		
 		if (first) {
 	        try {
-	        	int source = _prefs.getBoolean(SettingsActivity.PREF_RECORDING_SUPPORTED,  true) ? 
+	        	int source = _prefs.getBoolean(SettingsActivity.PREF_RECORDING_SUPPORTED, SettingsActivity.PREF_RECORDING_SUPPORTED_DEFAULT) ? 
 	        		MediaRecorder.AudioSource.VOICE_CALL : MediaRecorder.AudioSource.MIC;
 	        	Log.i(TAG, "Using audio source: " + source);
 	        	
@@ -261,11 +283,11 @@ public class CallRecorderService extends AbstractService {
 				builder.setContentText(getString(R.string.msg_recorded_phonecall_from, contact.name));
 				builder.setLargeIcon(contact.photo);
 			}
-			else if (_phonenumber != null && !"".equals(_phonenumber)) {
-				builder.setContentText(getString(R.string.msg_recorded_phonecall_from, _phonenumber));
+			else if (Phonenumbers.isPrivateNumber(_phonenumber)) {
+				builder.setContentText(getString(R.string.msg_recorded_phonecall_from_private_number));
 			}
 			else {
-				builder.setContentText(getString(R.string.msg_recorded_phonecall_from_private_number));
+				builder.setContentText(getString(R.string.msg_recorded_phonecall_from, _phonenumber));
 			}
 			
 			NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
@@ -314,22 +336,18 @@ public class CallRecorderService extends AbstractService {
 		}
 		
 		if (_prefs.getBoolean(SettingsActivity.PREF_PHONECALL_RECORD_UNKNOWN, SettingsActivity.PREF_PHONECALL_RECORD_UNKNOWN_DEFAULT) && 
-			!isPrivateNumber(phonenumber) && !isContact(phonenumber)) {
+			!Phonenumbers.isPrivateNumber(phonenumber) && !isContact(phonenumber)) {
 			return true;
 		}
 		
 		if (_prefs.getBoolean(SettingsActivity.PREF_PHONECALL_RECORD_PRIVATE, SettingsActivity.PREF_PHONECALL_RECORD_PRIVATE_DEFAULT) && 
-			isPrivateNumber(phonenumber)) {
+			Phonenumbers.isPrivateNumber(phonenumber)) {
 			return true;
 		}
 
 		return false;
 	}
 
-	private boolean isPrivateNumber(String phonenumber) {
-		return phonenumber == null || "".equals(phonenumber);
-	}
-	
 	private boolean isContact(String phonenumber) {
 		if (phonenumber == null) {
 			return false;
@@ -350,7 +368,7 @@ public class CallRecorderService extends AbstractService {
 	
 	private class GestureDetector extends ShakeGestureDetector {
 		public GestureDetector() {
-			super(CallRecorderService.this);
+			super(CallService.this);
 		}
 
 		@Override

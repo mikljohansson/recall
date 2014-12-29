@@ -4,7 +4,7 @@ import se.embargo.core.databinding.DataBindingContext;
 import se.embargo.core.databinding.PreferenceProperties;
 import se.embargo.core.databinding.WidgetProperties;
 import se.embargo.core.databinding.observable.ObservableValueAdapter;
-import se.embargo.recall.phone.CallRecorderService;
+import se.embargo.recall.phone.CallService;
 import se.embargo.recall.phone.PhonecallListFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,8 +26,8 @@ public class MainActivity extends SherlockFragmentActivity {
 		super.onCreate(savedInstanceState);
 		_prefs = getSharedPreferences(SettingsActivity.PREFS_NAMESPACE, MODE_PRIVATE);
 
-		Intent args = new Intent(this, CallRecorderService.class);
-		args.putExtra(CallRecorderService.EXTRA_EVENT, CallRecorderService.EXTRA_STATE_BOOT);
+		Intent args = new Intent(this, CallService.class);
+		args.putExtra(CallService.EXTRA_EVENT, CallService.EXTRA_STATE_BOOT);
 		startService(args);
 		
 		setContentView(R.layout.main_activity);
@@ -38,7 +38,8 @@ public class MainActivity extends SherlockFragmentActivity {
 		View unsupportedLayout = findViewById(R.id.recordingUnsupportedLayout);
 		_binding.bindValue(
 			WidgetProperties.visible().observe(unsupportedLayout), 
-			new ObservableValueAdapter<Boolean, Integer>(PreferenceProperties.bool(SettingsActivity.PREF_RECORDING_SUPPORTED, true).observe(_prefs)) {
+			new ObservableValueAdapter<Boolean, Integer>(PreferenceProperties.bool(
+				SettingsActivity.PREF_RECORDING_SUPPORTED, SettingsActivity.PREF_RECORDING_SUPPORTED_DEFAULT).observe(_prefs)) {
 				@Override
 				public Integer getValue() {
 					return _object.getValue() ? View.GONE : View.VISIBLE;

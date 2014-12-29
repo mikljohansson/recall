@@ -53,7 +53,7 @@
 			</intent-filter>
 		</receiver>
 				
-		<service android:name="se.embargo.recall.phone.CallRecorderService"/>
+		<service android:name="se.embargo.recall.phone.CallService"/>
 			
 		<provider
 			android:name="se.embargo.recall.database.RecallRepository"

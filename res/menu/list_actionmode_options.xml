@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item 
+        android:id="@+id/sendButton" 
+        android:icon="@drawable/ic_action_send" 
+        android:title="@string/menu_option_send"
+        android:showAsAction="always"/>
+    <item 
         android:id="@+id/deleteButton" 
         android:icon="@drawable/ic_action_trash" 
         android:title="@string/menu_option_delete"

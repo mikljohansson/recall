@@ -28,6 +28,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	public static final boolean PREF_NOTIFICATION_RECORDED_DEFAULT = true;
 
 	public static final String PREF_RECORDING_SUPPORTED = "recording-supported";
+	public static final boolean PREF_RECORDING_SUPPORTED_DEFAULT = false;
 
 	private SharedPreferences _prefs;
 	private PreferenceListener _prefsListener;

@@ -6,6 +6,7 @@ import java.util.Collection;
 import se.embargo.core.widget.SelectionActionMode;
 import se.embargo.recall.R;
 import se.embargo.recall.database.RecallRepository;
+import se.embargo.recall.phone.PhonecallIntentUtil;
 import android.content.ContentProviderOperation;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
@@ -77,6 +78,13 @@ public class ListActionMode extends SelectionActionMode {
 					Log.e(TAG, "Failed to delete objects", e);
 				}
 				
+				result = true;
+				mode.finish();
+				break;
+			}
+			
+			case R.id.sendButton: {
+				PhonecallIntentUtil.send(getActivity(), getSelectedUris());
 				result = true;
 				mode.finish();
 				break;
