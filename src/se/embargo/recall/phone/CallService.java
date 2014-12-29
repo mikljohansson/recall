@@ -34,6 +34,11 @@ import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 public class CallService extends AbstractService {
+	private static final int AUDIO_ENCODER = MediaRecorder.AudioEncoder.AAC;
+	private static final int AUDIO_FORMAT = MediaRecorder.OutputFormat.MPEG_4;
+	private static final int AUDIO_ENCODING_BITRATE = 96000;
+	private static final int AUDIO_SAMPLING_RATE = 44100;
+
 	private static final String TAG = "CallRecorderService";
 	
 	private static final String DIRECTORY = "Recall/%s";
@@ -130,8 +135,10 @@ public class CallService extends AbstractService {
 				file = File.createTempFile("recall", ".mp4");
 				MediaRecorder recorder = new MediaRecorder();
 				recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_CALL);
-				recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-				recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+				recorder.setOutputFormat(AUDIO_FORMAT);
+				recorder.setAudioEncoder(AUDIO_ENCODER);
+		    	recorder.setAudioSamplingRate(AUDIO_SAMPLING_RATE);
+		    	recorder.setAudioEncodingBitRate(AUDIO_ENCODING_BITRATE);
 				recorder.setOutputFile(file.toString());
 				recorder.prepare();
 				recorder.start();
@@ -142,7 +149,7 @@ public class CallService extends AbstractService {
 				Log.i(TAG, "Voice call recording is supported");
 			}
 			catch (Exception e) {
-				Log.e(TAG, "Voice call recording unsupported", e);
+				Log.w(TAG, "Voice call recording unsupported", e);
 				_prefs.edit().putBoolean(SettingsActivity.PREF_RECORDING_SUPPORTED, false).commit();
 			}
 			finally {
@@ -176,8 +183,10 @@ public class CallService extends AbstractService {
 	        	
 	        	_recorder = new MediaRecorder();
 		        _recorder.setAudioSource(source);
-		    	_recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-		    	_recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+		    	_recorder.setOutputFormat(AUDIO_FORMAT);
+		    	_recorder.setAudioEncoder(AUDIO_ENCODER);
+		    	_recorder.setAudioSamplingRate(AUDIO_SAMPLING_RATE);
+		    	_recorder.setAudioEncodingBitRate(AUDIO_ENCODING_BITRATE);
 				_filename = createOutputFile().getAbsolutePath();
 		        _recorder.setOutputFile(_filename);
 				_recorder.prepare();
