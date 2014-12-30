@@ -52,11 +52,11 @@ public class PhonecallViewMapper implements IViewMapper<ContentValues> {
 		}
 		else if (Phonenumbers.isPrivateNumber(phonenumber)) {
 			titleview.setText(R.string.phonecall_private_number);
-			descriptionview.setVisibility(View.INVISIBLE);
+			descriptionview.setVisibility(View.GONE);
 		}
 		else {
 			titleview.setText(phonenumber);
-			descriptionview.setVisibility(View.INVISIBLE);
+			descriptionview.setVisibility(View.GONE);
 		}
 
 		// Bind the date
