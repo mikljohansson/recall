@@ -90,7 +90,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		switch (item.getItemId()) {
 			case R.id.micButton: {
 				Intent args = new Intent(this, CallService.class);
-				args.putExtra(CallService.EXTRA_EVENT, isRecording() ? CallService.EXTRA_STATE_IDLE : CallService.EXTRA_STATE_RECORD);
+				args.putExtra(CallService.EXTRA_EVENT, isRecording() ? CallService.EXTRA_STATE_STOP_RECORDING : CallService.EXTRA_STATE_START_RECORDING);
 				startService(args);
 				return true;
 			}

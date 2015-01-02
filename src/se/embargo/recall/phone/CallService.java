@@ -52,7 +52,8 @@ public class CallService extends AbstractService {
 	public static final String EXTRA_STATE_OFFHOOK = "offhook";
 	public static final String EXTRA_STATE_IDLE = "idle";
 	public static final String EXTRA_STATE_BOOT = "boot";
-	public static final String EXTRA_STATE_RECORD = "record";
+	public static final String EXTRA_STATE_START_RECORDING = "start-recording";
+	public static final String EXTRA_STATE_STOP_RECORDING = "stop-recording";
 	
 	private static final int NOTIFICATION_ID = 0;
 	
@@ -81,7 +82,7 @@ public class CallService extends AbstractService {
 		
 		if (intent != null) {
 			String event = intent.getStringExtra(EXTRA_EVENT);
-			if (EXTRA_STATE_OUTGOING.equals(event) || EXTRA_STATE_RINGING.equals(event) || EXTRA_STATE_RECORD.equals(event)) {
+			if (EXTRA_STATE_OUTGOING.equals(event) || EXTRA_STATE_RINGING.equals(event)) {
 				_phonenumber = intent.getStringExtra(EXTRA_PHONE_NUMBER);
 				_direction = EXTRA_STATE_OUTGOING.equals(event) ? Phonecall.Direction.OUTGOING : Phonecall.Direction.INCOMING;
 	
@@ -90,8 +91,7 @@ public class CallService extends AbstractService {
 					_gesture = new GestureDetector();
 				}
 			}
-			
-			if (EXTRA_STATE_OFFHOOK.equals(event) || EXTRA_STATE_RECORD.equals(event)) {
+			else if (EXTRA_STATE_OFFHOOK.equals(event)) {
 				Log.i(TAG, "Call went through to: " + _phonenumber);
 				_incall = true;
 	
@@ -103,8 +103,7 @@ public class CallService extends AbstractService {
 					Log.i(TAG, "Ignoring phonecall with: " + _phonenumber);
 				}
 			}
-			
-			if (EXTRA_STATE_IDLE.equals(event)) {
+			else if (EXTRA_STATE_IDLE.equals(event)) {
 				// Stop gesture detection
 				if (_gesture != null) {
 					_gesture.dispose();
@@ -117,8 +116,13 @@ public class CallService extends AbstractService {
 				_phonenumber = null;
 				_incall = false;
 			}
-			
-			if (EXTRA_STATE_BOOT.equals(event)) {
+			else if (EXTRA_STATE_START_RECORDING.equals(event)) {
+				startRecording(true);
+			}
+			else if (EXTRA_STATE_STOP_RECORDING.equals(event)) {
+				stopRecording();
+			}
+			else if (EXTRA_STATE_BOOT.equals(event)) {
 				// Test if VOICE_CALL is supported
 				if (_task == null && _recorder == null) {
 					_task = new TestRecordingTask();
@@ -183,7 +187,7 @@ public class CallService extends AbstractService {
 		}
 	}
 	
-	private void startRecording() {
+	private void startRecording(boolean force) {
 		boolean first = (_recorder == null);
 		
 		if (first) {
@@ -219,7 +223,7 @@ public class CallService extends AbstractService {
 	        _prepared = true;
 		}
         
-        if (_incall && _recorder != null) {
+        if ((_incall || force) && _recorder != null) {
         	try {
         		_recorder.start();
         	}
@@ -230,11 +234,11 @@ public class CallService extends AbstractService {
 				stopRecording();
 				return;
         	}
+
+            _recordingStartTime = System.currentTimeMillis();
+            _prefs.edit().putBoolean(SettingsActivity.PREF_RECORDING, true).commit();
         }
 
-        _recordingStartTime = System.currentTimeMillis();
-        _prefs.edit().putBoolean(SettingsActivity.PREF_RECORDING, true).commit();
-        
         if (first) {
 			// Display a notification about us starting and put a persistent icon in the status bar
 			PendingIntent contentIntent = TaskStackBuilder.create(this).
@@ -249,6 +253,10 @@ public class CallService extends AbstractService {
 			
 			startForeground(R.string.msg_recording_phonecall, builder.build());
         }
+	}
+	
+	private void startRecording() {
+		startRecording(false);
 	}
 	
 	private void stopRecording() {
@@ -285,7 +293,6 @@ public class CallService extends AbstractService {
 		// Remove the status message and stop the service
 		_prefs.edit().putBoolean(SettingsActivity.PREF_RECORDING, false).commit();
 		stopForeground(true);
-		stopService();
 		
 		// Show notification with link to recording
 		if (recorded && _prefs.getBoolean(SettingsActivity.PREF_NOTIFICATION_RECORDED, SettingsActivity.PREF_NOTIFICATION_RECORDED_DEFAULT)) {
