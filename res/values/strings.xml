@@ -15,6 +15,7 @@
 	<string name="phonecall_private_number">Private number</string>
 	<string name="phonecall_allowed_through">Allowed through on third retry</string>
 	<string name="phonecall_default_date">0 minutes ago</string>
+	<string name="phonecall_default_duration">0:25</string>
 	<string name="phonecall_content_description">Phonecall</string>
     
 	<string name="phonecall_recording_unsupported">This device doesn\'t support phone call recording.</string>

@@ -10,27 +10,42 @@
 		style="@style/Widget.ListItem.Thumbnail"/>
     
 	<LinearLayout
-		android:layout_width="wrap_content"
+		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:orientation="vertical"
 		style="@style/Widget.ListItem.Content">
 
-		<TextView
-			android:id="@+id/itemTitle"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="@string/phonecall_private_number"
-			style="@style/Widget.ListItem.Title"/>
-		<TextView
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+	    	<TextView
+				android:id="@+id/itemTitle"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:text="@string/phonecall_private_number"
+				style="@style/Widget.ListItem.Title"/>
+			<TextView
+				android:id="@+id/itemDuration"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:text="@string/phonecall_default_duration"
+				style="@style/Widget.ListItem.Date"/>
+		</RelativeLayout>
+		
+	    <TextView
 			android:id="@+id/itemDescription"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/phonecall_allowed_through"
 			style="@style/Widget.ListItem.Description"/>
+		
 		<TextView
 			android:id="@+id/itemModified"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_marginRight="5dp"
 			android:text="@string/phonecall_default_date"
 			style="@style/Widget.ListItem.Date"/>
 	</LinearLayout>

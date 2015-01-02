@@ -8,6 +8,7 @@ import se.embargo.recall.R;
 import se.embargo.recall.database.Phonecall;
 import android.content.ContentValues;
 import android.content.Context;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,6 +64,10 @@ public class PhonecallViewMapper implements IViewMapper<ContentValues> {
 		TextView modifiedview = (TextView)view.findViewById(R.id.itemModified);
 		modifiedview.setText(Dates.formatRelativeTimeSpan(item.getAsLong(Phonecall.MODIFIED)));
 		
+		// Bind the duration
+		TextView durationview = (TextView)view.findViewById(R.id.itemDuration);
+		durationview.setText(DateUtils.formatElapsedTime(item.getAsLong(Phonecall.DURATION) / 1000));
+
 		view.setTag(ID_TAG, item.getAsString(Phonecall.ID));
 		view.setTag(URI_TAG, item.getAsString(Phonecall.URI));
 		view.setTag(MIMETYPE_TAG, item.getAsString(Phonecall.MIMETYPE));
