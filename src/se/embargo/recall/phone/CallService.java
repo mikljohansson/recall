@@ -295,7 +295,7 @@ public class CallService extends AbstractService {
 				getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 			
 			NotificationCompat.Builder builder = new NotificationCompat.Builder(this).
-				setSmallIcon(R.drawable.ic_notification_mic).
+				setSmallIcon(R.drawable.ic_notification_phone_end).
 				setContentTitle(getString(R.string.msg_recorded_phonecall)).
 				setContentIntent(contentIntent).
 				setAutoCancel(true);
