@@ -120,7 +120,7 @@ public class CallService extends AbstractService {
 			
 			if (EXTRA_STATE_BOOT.equals(event)) {
 				// Test if VOICE_CALL is supported
-				if (_task == null) {
+				if (_task == null && _recorder == null) {
 					_task = new TestRecordingTask();
 					_task.execute();
 				}
@@ -147,11 +147,17 @@ public class CallService extends AbstractService {
 				recorder.setOutputFile(file.toString());
 				recorder.prepare();
 				recorder.start();
-				recorder.stop();
-				recorder.reset();
-				recorder.release();
 				_prefs.edit().putBoolean(SettingsActivity.PREF_RECORDING_SUPPORTED, true).commit();
 				Log.i(TAG, "Voice call recording is supported");
+				
+				try {
+					recorder.stop();
+					recorder.reset();
+					recorder.release();
+				}
+				catch (Exception e) {
+					Log.w(TAG, "Exception when stopping test recording", e);
+				}
 			}
 			catch (Exception e) {
 				Log.w(TAG, "Voice call recording unsupported", e);
