@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item 
+        android:id="@+id/micButton" 
+        android:icon="@drawable/ic_action_mic" 
+        android:title="@string/menu_option_mic"
+        android:showAsAction="always"/>
+    <item 
         android:id="@+id/editSettingsButton" 
         android:icon="@drawable/ic_action_gear" 
         android:title="@string/menu_option_settings"

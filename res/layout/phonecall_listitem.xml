@@ -5,7 +5,7 @@
 	
 	<ImageView
 		android:id="@+id/itemThumbnail"
-		android:src="@drawable/ic_list_phone_missed"
+		android:src="@drawable/ic_list_phone_incoming"
 		android:contentDescription="@string/phonecall_content_description"
 		style="@style/Widget.ListItem.Thumbnail"/>
     
@@ -19,21 +19,18 @@
 			android:id="@+id/itemTitle"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textIsSelectable="false"
 			android:text="@string/phonecall_private_number"
 			style="@style/Widget.ListItem.Title"/>
 		<TextView
 			android:id="@+id/itemDescription"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textIsSelectable="false"
 			android:text="@string/phonecall_allowed_through"
 			style="@style/Widget.ListItem.Description"/>
 		<TextView
 			android:id="@+id/itemModified"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textIsSelectable="false"
 			android:text="@string/phonecall_default_date"
 			style="@style/Widget.ListItem.Date"/>
 	</LinearLayout>

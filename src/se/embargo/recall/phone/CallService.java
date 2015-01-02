@@ -52,6 +52,7 @@ public class CallService extends AbstractService {
 	public static final String EXTRA_STATE_OFFHOOK = "offhook";
 	public static final String EXTRA_STATE_IDLE = "idle";
 	public static final String EXTRA_STATE_BOOT = "boot";
+	public static final String EXTRA_STATE_RECORD = "record";
 	
 	private static final int NOTIFICATION_ID = 0;
 	
@@ -80,7 +81,7 @@ public class CallService extends AbstractService {
 		
 		if (intent != null) {
 			String event = intent.getStringExtra(EXTRA_EVENT);
-			if (EXTRA_STATE_OUTGOING.equals(event) || EXTRA_STATE_RINGING.equals(event)) {
+			if (EXTRA_STATE_OUTGOING.equals(event) || EXTRA_STATE_RINGING.equals(event) || EXTRA_STATE_RECORD.equals(event)) {
 				_phonenumber = intent.getStringExtra(EXTRA_PHONE_NUMBER);
 				_direction = EXTRA_STATE_OUTGOING.equals(event) ? Phonecall.Direction.OUTGOING : Phonecall.Direction.INCOMING;
 	
@@ -89,7 +90,8 @@ public class CallService extends AbstractService {
 					_gesture = new GestureDetector();
 				}
 			}
-			else if (EXTRA_STATE_OFFHOOK.equals(event)) {
+			
+			if (EXTRA_STATE_OFFHOOK.equals(event) || EXTRA_STATE_RECORD.equals(event)) {
 				Log.i(TAG, "Call went through to: " + _phonenumber);
 				_incall = true;
 	
@@ -101,7 +103,8 @@ public class CallService extends AbstractService {
 					Log.i(TAG, "Ignoring phonecall with: " + _phonenumber);
 				}
 			}
-			else if (EXTRA_STATE_IDLE.equals(event)) {
+			
+			if (EXTRA_STATE_IDLE.equals(event)) {
 				// Stop gesture detection
 				if (_gesture != null) {
 					_gesture.dispose();
@@ -114,7 +117,8 @@ public class CallService extends AbstractService {
 				_phonenumber = null;
 				_incall = false;
 			}
-			else if (EXTRA_STATE_BOOT.equals(event)) {
+			
+			if (EXTRA_STATE_BOOT.equals(event)) {
 				// Test if VOICE_CALL is supported
 				if (_task == null) {
 					_task = new TestRecordingTask();
@@ -223,6 +227,7 @@ public class CallService extends AbstractService {
         }
 
         _recordingStartTime = System.currentTimeMillis();
+        _prefs.edit().putBoolean(SettingsActivity.PREF_RECORDING, true).commit();
         
         if (first) {
 			// Display a notification about us starting and put a persistent icon in the status bar
@@ -272,6 +277,7 @@ public class CallService extends AbstractService {
 		}
 		
 		// Remove the status message and stop the service
+		_prefs.edit().putBoolean(SettingsActivity.PREF_RECORDING, false).commit();
 		stopForeground(true);
 		stopService();
 		
@@ -308,7 +314,7 @@ public class CallService extends AbstractService {
 	@SuppressLint({ "DefaultLocale", "SimpleDateFormat" })
 	private File createOutputFile() {
 		String datetime = new SimpleDateFormat("yyyy-MM-dd_HHmm").format(new Date());
-		String phonenumber = _phonenumber.replaceFirst("\\+", "00").replaceAll("[^\\d]", "");
+		String phonenumber = _phonenumber != null ? _phonenumber.replaceFirst("\\+", "00").replaceAll("[^\\d]", "") : "private_number";
 		String filename;
 		File file;
 		

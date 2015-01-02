@@ -21,6 +21,11 @@ public class MainActivity extends SherlockFragmentActivity {
 	private DataBindingContext _binding = new DataBindingContext();
 	private SharedPreferences _prefs;
 	
+	/**
+	 * The listener needs to be kept alive since SharedPrefernces only keeps a weak reference to it
+	 */
+	private PreferencesListener _prefsListener = new PreferencesListener();
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -49,17 +54,47 @@ public class MainActivity extends SherlockFragmentActivity {
 				public void setValue(Integer value) {}
 			});
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		_prefs.registerOnSharedPreferenceChangeListener(_prefsListener);
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		_prefs.unregisterOnSharedPreferenceChangeListener(_prefsListener);
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getSupportMenuInflater();
 		inflater.inflate(R.menu.main_options, menu);
+		
+		// Set the scan button icon depending on the scanner service
+		if (isRecording()) {
+			menu.getItem(0).setIcon(R.drawable.ic_action_micoff);
+			menu.getItem(0).setTitle(R.string.menu_option_micoff);
+		}
+		
 		return true;
+	}
+
+	private boolean isRecording() {
+		return _prefs.getBoolean(SettingsActivity.PREF_RECORDING, false);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+			case R.id.micButton: {
+				Intent args = new Intent(this, CallService.class);
+				args.putExtra(CallService.EXTRA_EVENT, isRecording() ? CallService.EXTRA_STATE_IDLE : CallService.EXTRA_STATE_RECORD);
+				startService(args);
+				return true;
+			}
+			
 			case R.id.editSettingsButton: {
 				// Start preferences activity
 				Intent intent = new Intent(this, SettingsActivity.class);
@@ -69,6 +104,18 @@ public class MainActivity extends SherlockFragmentActivity {
 
 			default:
 				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	/**
+	 * Listens for preference changes and applies updates
+	 */
+	private class PreferencesListener implements SharedPreferences.OnSharedPreferenceChangeListener {
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+			if (SettingsActivity.PREF_RECORDING.equals(key)) {
+				supportInvalidateOptionsMenu();
+			}
 		}
 	}
 }
