@@ -1,13 +1,12 @@
 package se.embargo.recall.phone;
 
+import se.embargo.core.Activities;
 import se.embargo.core.database.CursorMapperAdapter;
 import se.embargo.recall.R;
 import se.embargo.recall.database.Phonecall;
 import se.embargo.recall.database.RecallRepository;
 import se.embargo.recall.widget.ListActionMode;
-import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -35,9 +34,7 @@ public class PhonecallListFragment extends SherlockListFragment {
 	public void onListItemClick(ListView list, View item, int position, long id) {
 		String uri = (String)item.getTag(PhonecallViewMapper.URI_TAG);
 		String mimetype = (String)item.getTag(PhonecallViewMapper.MIMETYPE_TAG);
-		Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.parse(uri), mimetype);
-        startActivity(intent);
+        Activities.playAudio(getActivity(), uri, mimetype);
 	}
 
     private class PhonecallAdapter extends CursorMapperAdapter {
