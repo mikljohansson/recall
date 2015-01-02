@@ -36,8 +36,8 @@ import android.util.Log;
 public class CallService extends AbstractService {
 	private static final int AUDIO_ENCODER = MediaRecorder.AudioEncoder.AAC;
 	private static final int AUDIO_FORMAT = MediaRecorder.OutputFormat.MPEG_4;
-	private static final int AUDIO_ENCODING_BITRATE = 96000;
 	private static final int AUDIO_SAMPLING_RATE = 44100;
+	private static final int AUDIO_ENCODING_BITRATE = 24000;
 
 	private static final String TAG = "CallRecorderService";
 	
@@ -136,6 +136,7 @@ public class CallService extends AbstractService {
 				MediaRecorder recorder = new MediaRecorder();
 				recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_CALL);
 				recorder.setOutputFormat(AUDIO_FORMAT);
+				recorder.setAudioChannels(1);
 				recorder.setAudioEncoder(AUDIO_ENCODER);
 		    	recorder.setAudioSamplingRate(AUDIO_SAMPLING_RATE);
 		    	recorder.setAudioEncodingBitRate(AUDIO_ENCODING_BITRATE);
