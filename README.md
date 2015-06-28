@@ -1,0 +1,13 @@
+# Recall My Calls
+Automatically records phone calls and saves them for later playback. Available at Google Play
+
+* https://play.google.com/store/apps/details?id=se.embargo.recall
+
+> Note that not all phones support inline phone call recording. Unfortunately this is a hardware limitation and outside the control of this app. In this case the app will use the mic which will decrease quality and may only capture half the call unless put on speaker.
+
+## Features
+* Shake phone 3 times to toggle call recording during any call
+* Optionally record only calls with numbers not in phone book, private numbers or hidden callers
+* Long press and select recording to send/share them via E-mail, MMS, Dropbox or any other sharing mechanism your phone supports
+* Requires no more than the minimal permissions to record calls
+* Doesn't require permissions for e.g. Internet, SMS or accounts!
