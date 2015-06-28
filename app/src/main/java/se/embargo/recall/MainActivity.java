@@ -9,15 +9,15 @@ import se.embargo.recall.phone.PhonecallListFragment;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.view.View;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
+import android.app.Activity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
-public class MainActivity extends SherlockFragmentActivity {
+public class MainActivity extends Activity {
 	private DataBindingContext _binding = new DataBindingContext();
 	private SharedPreferences _prefs;
 	
@@ -38,7 +38,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		setContentView(R.layout.main_activity);
 
 		Fragment fragment = Fragment.instantiate(this, PhonecallListFragment.class.getName());
-		getSupportFragmentManager().beginTransaction().replace(R.id.fragment, fragment).commit();
+		getFragmentManager().beginTransaction().replace(R.id.fragment, fragment).commit();
 		
 		View unsupportedLayout = findViewById(R.id.recordingUnsupportedLayout);
 		_binding.bindValue(
@@ -69,7 +69,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getSupportMenuInflater();
+		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main_options, menu);
 		
 		// Set the scan button icon depending on the scanner service
@@ -114,7 +114,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		@Override
 		public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
 			if (SettingsActivity.PREF_RECORDING.equals(key)) {
-				supportInvalidateOptionsMenu();
+				invalidateOptionsMenu();
 			}
 		}
 	}
