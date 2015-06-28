@@ -11,3 +11,7 @@ Automatically records phone calls and saves them for later playback. Available a
 * Long press and select recording to send/share them via E-mail, MMS, Dropbox or any other sharing mechanism your phone supports
 * Requires no more than the minimal permissions to record calls
 * Doesn't require permissions for e.g. Internet, SMS or accounts!
+
+## Development
+* Clone the [mikljohansson/android-core](https://github.com/mikljohansson/recall) library into the parent folder
+* Uses [Android Studio](http://developer.android.com/tools/studio/index.html) for development
