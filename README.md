@@ -13,5 +13,5 @@ Automatically records phone calls and saves them for later playback. Available a
 * Doesn't require permissions for e.g. Internet, SMS or accounts!
 
 ## Development
-* Clone the [mikljohansson/android-core](https://github.com/mikljohansson/recall) library into the parent folder
+* Clone the [mikljohansson/android-core](https://github.com/mikljohansson/android-core) library into the parent folder
 * Uses [Android Studio](http://developer.android.com/tools/studio/index.html) for development
