@@ -1,4 +1,6 @@
 # Recall My Calls
+[![Travis CI](https://travis-ci.org/mikljohansson/recall.svg?branch=master)](https://travis-ci.org/mikljohansson/recall)
+
 Automatically records phone calls and saves them for later playback. Available at Google Play
 
 * https://play.google.com/store/apps/details?id=se.embargo.recall
@@ -13,5 +15,4 @@ Automatically records phone calls and saves them for later playback. Available a
 * Doesn't require permissions for e.g. Internet, SMS or accounts!
 
 ## Development
-* Clone the [mikljohansson/android-core](https://github.com/mikljohansson/android-core) library into the parent folder
 * Uses [Android Studio](http://developer.android.com/tools/studio/index.html) for development

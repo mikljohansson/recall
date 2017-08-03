@@ -1,0 +1,16 @@
+language: android
+android:
+  components:
+  - build-tools-26.0.1
+  - android-22
+
+# Deploy APK to Github release tags
+before_deploy: "cp app/build/outputs/apk/app-release-unsigned.apk app/build/outputs/apk/recall-${TRAVIS_TAG}-unsigned.apk"
+deploy:
+  provider: releases
+  api_key:
+    secure: ICA2WAnIFHpH0/bQx+ERjWAhkq2EsCtmVEMziA3e5DK8J5UBgZwa+UiwzucDmGL4cFYOjXrRapego+m3KPksjr8ADpkgA03r9BuqDKYrBXhvG7dUe4i3443s68xJphMk285witZIeTG2sUPGyCafogLDLonrdIAfUUxllfmj0sjzaHV0pm4okGKiMHbYqwSl2ppy2CVqp3WxjuyKlodizg/xnWyoydxktAjR3au9VvlfG3Kc1DG8yj0J0++WDcSJm/gmmHnbvG2Vbazze3td79tGIISoR0sMSNE2EakKhrJkhVoQNLSLmtcyQAQ+/PDi7RUKktsAIo8RSxgzDIJCdt1etfKuBnKu61YlgzFeVPzHr5OwSQAPYXuAmeAJs1My8Q9nCVxq3Yd9sE0AsY0cz5eVjl5jcKVRG+eMflFg+YTqYCwgG4Np5EtUW15PfR27ORHHi3KNoFYzyMg95a8spugV423zrF4iVW3+Wf1ikUbwXwdH6U9vkTO6xvgw+Y3YcP06au7JX389WMzy2R9ttJMw/cLjcDmlnv2VUWGxbBfVIQ+hd2tA29f0OEyXAgGNXHAEZGHdl+q9I5HAuvwMmnIBIcA3A6m0Pv1LnYYV021xB+PqoIzlo1SNZFqPOedMWr9zR1vaoUmJZe7swhgz3HaxzXH2vGVwLXL9cdmrtWc=
+  file: "app/build/outputs/apk/recall-${TRAVIS_TAG}-unsigned.apk"
+  skip_cleanup: true
+  on:
+    tags: true
