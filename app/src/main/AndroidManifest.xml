@@ -5,9 +5,9 @@
 	android:versionName="1.1.2" >
 
 	<uses-sdk 
-		android:minSdkVersion="16"
+		android:minSdkVersion="10"
 		android:targetSdkVersion="22"/>
-		
+
 	<!-- Used to detect incoming/outgoing phone calls -->
 	<uses-permission android:name="android.permission.READ_PHONE_STATE"/>   
 	<uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
